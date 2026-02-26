@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แอปพลิเคชันคิดแคลอรี่ - Calorie Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+        
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .result {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-item label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .result-item value {
+            color: #667eea;
+            font-weight: 700;
+        }
+        
+        .bmi-status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .normal {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .info-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            background: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .activity-item-title {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .activity-item-detail {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .clear-btn {
+            background: #dc3545;
+            margin-top: 10px;
+        }
+        
+        .clear-btn:hover {
+            background: #c82333;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin: 5px 0;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 Calorie Calculator</h1>
+            <p>แอปพลิเคชันคำนวณแคลอรี่แบบ OOP</p>
+        </div>
+        
+        <div class="grid">
+            <!-- Card 1: ข้อมูลบุคคล -->
+            <div class="card">
+                <h2>👤 ข้อมูลบุคคล</h2>
+                <div class="form-group">
+                    <label>ชื่อ</label>
+                    <input type="text" id="name" placeholder="กรุณาป้อนชื่อ">
+                </div>
+                <div class="form-group">
+                    <label>อายุ (ปี)</label>
+                    <input type="number" id="age" placeholder="30" min="1" max="120">
+                </div>
+                <div class="form-group">
+                    <label>น้ำหนัก (กิโลกรัม)</label>
+                    <input type="number" id="weight" placeholder="75" min="1" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>ส่วนสูง (เซนติเมตร)</label>
+                    <input type="number" id="height" placeholder="175" min="1" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>เพศ</label>
+                    <select id="gender">
+                        <option value="">-- เลือก --</option>
+                        <option value="male">ชาย</option>
+                        <option value="female">หญิง</option>
+                    </select>
+                </div>
+                <button onclick="calculateBMI()">คำนวณ BMI</button>
+                <div id="bmiResult" class="result" style="display: none;">
+                    <div class="result-item">
+                        <label>BMI:</label>
+                        <value id="bmiValue">-</value>
+                    </div>
+                    <div class="result-item">
+                        <label>สถานะ:</label>
+                        <value id="bmiStatus">-</value>
+                    </div>
+                </div>
+                <div class="info-text">
+                    ℹ️ BMI (Body Mass Index) = น้ำหนัก(kg) / ส่วนสูง(m)²<br>
+                    น้ำหนักปกติ: 18.5 - 24.9
+                </div>
+            </div>
+            
+            <!-- Card 2: คำนวณแคลอรี่ -->
+            <div class="card">
+                <h2>⚡ คำนวณแคลอรี่</h2>
+                <div class="form-group">
+                    <label>ระดับการออกกำลัง</label>
+                    <select id="activityLevel">
+                        <option value="">-- เลือก --</option>
+                        <option value="sedentary">นั่งประจำ (1.2)</option>
+                        <option value="lightly">ออกกำลังน้อย (1.375)</option>
+                        <option value="moderate">ออกกำลังปานกลาง (1.55)</option>
+                        <option value="very">ออกกำลังมาก (1.725)</option>
+                        <option value="extreme">ออกกำลังหนัก (1.9)</option>
+                    </select>
+                </div>
+                <button onclick="calculateCalories()" style="margin-bottom: 15px;">คำนวณแคลอรี่</button>
+                <div id="calorieResult" class="result" style="display: none;">
+                    <div class="result-item">
+                        <label>BMR:</label>
+                        <value id="bmrValue">-</value> แคลอรี่/วัน
+                    </div>
+                    <div class="result-item">
+                        <label>TDEE:</label>
+                        <value id="tdeeValue">-</value> แคลอรี่/วัน
+                    </div>
+                </div>
+                
+                <div class="stats-grid" id="goalStats" style="display: none;">
+                    <div class="stat-box">
+                        <div class="stat-label">ลดน้ำหนัก</div>
+                        <div class="stat-value" id="loseGoal">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">รักษาน้ำหนัก</div>
+                        <div class="stat-value" id="maintainGoal">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">เพิ่มน้ำหนัก</div>
+                        <div class="stat-value" id="gainGoal">-</div>
+                    </div>
+                </div>
+                
+                <div class="info-text">
+                    ℹ️ BMR = แคลอรี่ที่ร่างกายใช้เมื่อนอน<br>
+                    TDEE = Total Daily Energy Expenditure<br>
+                    ลดน้ำหนัก = TDEE - 500 แคลอรี่
+                </div>
+            </div>
+            
+            <!-- Card 3: คำนวณกิจกรรม -->
+            <div class="card">
+                <h2>🏃 กิจกรรมประจำวัน</h2>
+                <div class="form-group">
+                    <label>เลือกกิจกรรม</label>
+                    <select id="activityType">
+                        <option value="">-- เลือกกิจกรรม --</option>
+                        <option value="เดิน (ช้า)">เดิน (ช้า)</option>
+                        <option value="เดิน (ปกติ)">เดิน (ปกติ)</option>
+                        <option value="เดิน (เร็ว)">เดิน (เร็ว)</option>
+                        <option value="วิ่ง">วิ่ง</option>
+                        <option value="ว่ายน้ำ">ว่ายน้ำ</option>
+                        <option value="ปั่นจักรยาน">ปั่นจักรยาน</option>
+                        <option value="โยคะ">โยคะ</option>
+                        <option value="เต้น">เต้น</option>
+                        <option value="กีฬา (ทั่วไป)">กีฬา (ทั่วไป)</option>
+                        <option value="เล่นเกม">เล่นเกม</option>
+                        <option value="นั่งทำงาน">นั่งทำงาน</option>
+                        <option value="นอน">นอน</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ระยะเวลา (นาที)</label>
+                    <input type="number" id="duration" placeholder="30" min="1">
+                </div>
+                <button onclick="calculateActivityCalories()">คำนวณแคลอรี่ที่ใช้</button>
+                <div id="activityResult" class="result" style="display: none;">
+                    <div class="result-item">
+                        <label id="activityLabel">-</label>
+                        <value id="activityCalories">-</value> แคลอรี่
+                    </div>
+                    <button class="clear-btn" onclick="addToTracker()">เพิ่มไปยังบันทึก</button>
+                </div>
+            </div>
+            
+            <!-- Card 4: บันทึกกิจกรรม -->
+            <div class="card">
+                <h2>📝 บันทึกกิจกรรม</h2>
+                <div id="trackerList" class="activity-list">
+                    <p style="text-align: center; color: #999;">ยังไม่มีบันทึก</p>
+                </div>
+                <div id="trackerStats" class="result" style="display: none; margin-top: 15px;">
+                    <div class="result-item">
+                        <label>แคลอรี่ทั้งหมด:</label>
+                        <value id="totalCalories">0</value> แคลอรี่
+                    </div>
+                </div>
+                <button class="clear-btn" onclick="clearTracker()">ล้างบันทึก</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // เก็บข้อมูล
+        let currentPerson = null;
+        let tracker = [];
+        let lastActivityData = null;
+        
+        // การคำนวณ BMI
+        function calculateBMI() {
+            const name = document.getElementById('name').value;
+            const age = parseFloat(document.getElementById('age').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const gender = document.getElementById('gender').value;
+            
+            if (!name || !age || !weight || !height || !gender) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+            
+            // บันทึกข้อมูลบุคคล
+            currentPerson = {
+                name: name,
+                age: age,
+                weight: weight,
+                height: height,
+                gender: gender
+            };
+            
+            const heightM = height / 100;
+            const bmi = weight / (heightM * heightM);
+            
+            let status = '';
+            if (bmi < 18.5) {
+                status = 'ต่ำกว่าเกณฑ์';
+            } else if (bmi < 25) {
+                status = 'น้ำหนักปกติ';
+            } else if (bmi < 30) {
+                status = 'ท้องอ้วน';
+            } else {
+                status = 'อ้วนมาก';
+            }
+            
+            document.getElementById('bmiValue').textContent = bmi.toFixed(2);
+            document.getElementById('bmiStatus').textContent = status;
+            document.getElementById('bmiResult').style.display = 'block';
+        }
+        
+        // การคำนวณแคลอรี่
+        function calculateCalories() {
+            if (!currentPerson) {
+                alert('กรุณากรอกข้อมูลบุคคลและคำนวณ BMI ก่อน');
+                return;
+            }
+            
+            const activityLevel = document.getElementById('activityLevel').value;
+            if (!activityLevel) {
+                alert('กรุณาเลือกระดับการออกกำลัง');
+                return;
+            }
+            
+            const factors = {
+                'sedentary': 1.2,
+                'lightly': 1.375,
+                'moderate': 1.55,
+                'very': 1.725,
+                'extreme': 1.9
+            };
+            
+            // คำนวณ BMR
+            let bmr;
+            if (currentPerson.gender === 'male') {
+                bmr = (10 * currentPerson.weight) + (6.25 * currentPerson.height) - (5 * currentPerson.age) + 5;
+            } else {
+                bmr = (10 * currentPerson.weight) + (6.25 * currentPerson.height) - (5 * currentPerson.age) - 161;
+            }
+            
+            // คำนวณ TDEE
+            const tdee = bmr * factors[activityLevel];
+            const lose = tdee - 500;
+            const maintain = tdee;
+            const gain = tdee + 500;
+            
+            document.getElementById('bmrValue').textContent = bmr.toFixed(0);
+            document.getElementById('tdeeValue').textContent = tdee.toFixed(0);
+            
+            document.getElementById('loseGoal').textContent = lose.toFixed(0);
+            document.getElementById('maintainGoal').textContent = maintain.toFixed(0);
+            document.getElementById('gainGoal').textContent = gain.toFixed(0);
+            
+            document.getElementById('calorieResult').style.display = 'block';
+            document.getElementById('goalStats').style.display = 'grid';
+        }
+        
+        // การคำนวณแคลอรี่จากกิจกรรม
+        function calculateActivityCalories() {
+            const activity = document.getElementById('activityType').value;
+            const duration = parseFloat(document.getElementById('duration').value);
+            
+            if (!activity || !duration) {
+                alert('กรุณาเลือกกิจกรรมและระยะเวลา');
+                return;
+            }
+            
+            const calorieMap = {
+                'เดิน (ช้า)': 3,
+                'เดิน (ปกติ)': 4,
+                'เดิน (เร็ว)': 5,
+                'วิ่ง': 8,
+                'ว่ายน้ำ': 7,
+                'ปั่นจักรยาน': 6,
+                'โยคะ': 3,
+                'เต้น': 5,
+                'กีฬา (ทั่วไป)': 6,
+                'เล่นเกม': 1.5,
+                'นั่งทำงาน': 1,
+                'นอน': 1
+            };
+            
+            const caloriesPerMin = calorieMap[activity];
+            const totalCalories = caloriesPerMin * duration;
+            
+            lastActivityData = {
+                activity: activity,
+                duration: duration,
+                calories: totalCalories.toFixed(2),
+                timestamp: new Date().toLocaleTimeString('th-TH')
+            };
+            
+            document.getElementById('activityLabel').textContent = `${activity} (${duration} นาที)`;
+            document.getElementById('activityCalories').textContent = totalCalories.toFixed(1);
+            document.getElementById('activityResult').style.display = 'block';
+        }
+        
+        // เพิ่มไปยังบันทึก
+        function addToTracker() {
+            if (!lastActivityData) {
+                alert('กรุณาคำนวณกิจกรรมก่อน');
+                return;
+            }
+            
+            tracker.push(lastActivityData);
+            updateTrackerDisplay();
+            
+            // ล้างฟอร์มกิจกรรม
+            document.getElementById('activityType').value = '';
+            document.getElementById('duration').value = '';
+            document.getElementById('activityResult').style.display = 'none';
+        }
+        
+        // อัปเดตการแสดงบันทึก
+        function updateTrackerDisplay() {
+            const trackerList = document.getElementById('trackerList');
+            
+            if (tracker.length === 0) {
+                trackerList.innerHTML = '<p style="text-align: center; color: #999;">ยังไม่มีบันทึก</p>';
+                document.getElementById('trackerStats').style.display = 'none';
+                return;
+            }
+            
+            let html = '';
+            let total = 0;
+            tracker.forEach((item, index) => {
+                html += `
+                    <div class="activity-item">
+                        <div class="activity-item-title">${index + 1}. ${item.activity}</div>
+                        <div class="activity-item-detail">
+                            ⏱️ ${item.duration} นาที | 🔥 ${item.calories} แคลอรี่
+                        </div>
+                        <div class="activity-item-detail" style="font-size: 0.8em; color: #999;">
+                            ${item.timestamp}
+                        </div>
+                    </div>
+                `;
+                total += parseFloat(item.calories);
+            });
+            
+            trackerList.innerHTML = html;
+            document.getElementById('totalCalories').textContent = total.toFixed(1);
+            document.getElementById('trackerStats').style.display = 'block';
+        }
+        
+        // ล้างบันทึก
+        function clearTracker() {
+            if (tracker.length === 0) {
+                alert('ไม่มีบันทึกให้ล้าง');
+                return;
+            }
+            
+            if (confirm('คุณแน่ใจหรือว่าต้องการล้างบันทึกทั้งหมด?')) {
+                tracker = [];
+                updateTrackerDisplay();
+            }
+        }
+    </script>
+</body>
+</html>
